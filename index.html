@@ -11,6 +11,12 @@
             box-sizing: border-box;
         }
 
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -199,6 +205,75 @@
             font-style: italic;
         }
 
+        .retype-container {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+        }
+
+        .retype-container.show {
+            display: block;
+        }
+
+        .retype-label {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .retype-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            font-size: 1.05em;
+            margin-bottom: 10px;
+        }
+
+        .retype-input:focus {
+            outline: none;
+            border-color: #ff9800;
+        }
+
+        .retype-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-retype-action {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-continue-term {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-continue-term:hover {
+            background: #5568d3;
+        }
+
+        .btn-skip-term {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-skip-term:hover {
+            background: #5a6268;
+        }
+
         .btn-submit {
             width: 100%;
             padding: 15px;
@@ -343,6 +418,21 @@
                 />
                 <small id="kbdHint" style="color:#666; display:block; margin-bottom:10px;">Keyboard: Enter or <strong>Ctrl+Space</strong>/<strong>Ctrl+Enter</strong> to submit. Press <strong>Space</strong> to continue after feedback.</small>
                 <div id="feedback" class="feedback"></div>
+                <div id="retypeContainer" class="retype-container">
+                    <label class="retype-label">Type the correct answer to continue:</label>
+                    <input 
+                        type="text" 
+                        id="retypeInput" 
+                        class="retype-input" 
+                        placeholder="Type the correct answer..."
+                        onkeypress="if(event.key==='Enter') checkRetypeAnswer()"
+                    />
+                    <small style="color:#856404; display:block; margin-top:5px;">Practice by typing the correct answer exactly as shown above.</small>
+                    <div class="retype-buttons">
+                        <button class="btn-retype-action btn-continue-term" onclick="continueWithTerm()">Continue →</button>
+                        <button class="btn-retype-action btn-skip-term" onclick="skipCurrentTerm()">Skip This Term</button>
+                    </div>
+                </div>
                 <button id="submitBtn" class="btn-submit" onclick="submitAnswer()">Submit Answer</button>
             </div>
 
@@ -544,6 +634,8 @@
             document.getElementById('answerInput').disabled = false;
             document.getElementById('answerInput').focus();
             document.getElementById('feedback').style.display = 'none';
+            document.getElementById('retypeContainer').classList.remove('show');
+            document.getElementById('retypeInput').value = '';
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = false;
             submitBtn.textContent = 'Submit Answer';
@@ -579,19 +671,62 @@
                 };
                 updateStats();
             } else {
-                // Incorrect: show feedback and move to next term (this one goes to back of queue)
+                // Incorrect: show feedback and retype container
                 feedbackEl.className = 'feedback incorrect';
                 feedbackEl.innerHTML = `✗ Incorrect. Here's the answer: <div class="feedback-definition" id="feedbackDef"></div>`;
                 renderDefinition(document.getElementById('feedbackDef'), currentTerm.definition);
                 feedbackEl.style.display = 'block';
                 answerInput.disabled = true;
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Skip to Next →';
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submit Answer';
                 // Add this term to the back of the queue to try again later
                 practiceTerms.push(currentTerm);
-                submitBtn.onclick = function() {
-                    showNextTerm();
-                };
+                // Show retype container
+                document.getElementById('retypeContainer').classList.add('show');
+                document.getElementById('retypeInput').focus();
+            }
+        }
+
+        function continueWithTerm() {
+            // Just move to next term, keeping current term in the queue
+            document.getElementById('retypeContainer').classList.remove('show');
+            document.getElementById('retypeInput').value = '';
+            showNextTerm();
+        }
+
+        function skipCurrentTerm() {
+            // Remove the current term from practiceTerms array permanently
+            const index = practiceTerms.indexOf(currentTerm);
+            if (index > -1) {
+                practiceTerms.splice(index, 1);
+            }
+            
+            // Hide retype container and move to next term
+            document.getElementById('retypeContainer').classList.remove('show');
+            document.getElementById('retypeInput').value = '';
+            showNextTerm();
+        }
+
+        function checkRetypeAnswer() {
+            const retypeInput = document.getElementById('retypeInput');
+            const retypeValue = retypeInput.value.trim();
+            
+            if (!retypeValue) {
+                return;
+            }
+            
+            // Check if retyped answer matches the correct answer
+            if (retypeValue.toLowerCase() === currentTerm.definition.toLowerCase()) {
+                // Correct retype - automatically continue
+                continueWithTerm();
+            } else {
+                // Incorrect retype - shake the input and clear it
+                retypeInput.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    retypeInput.style.animation = '';
+                    retypeInput.value = '';
+                    retypeInput.focus();
+                }, 500);
             }
         }
 
