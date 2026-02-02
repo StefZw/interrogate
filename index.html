@@ -539,7 +539,7 @@
             practiceTerms.sort(() => Math.random() - 0.5);
             currentTerm = practiceTerms[0];
 
-            document.getElementById('termDisplay').textContent = currentTerm.term;
+            renderDefinition(document.getElementById('termDisplay'), currentTerm.term);
             document.getElementById('answerInput').value = '';
             document.getElementById('answerInput').disabled = false;
             document.getElementById('answerInput').focus();
