@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interrogate - Learning Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+
+        .setup-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        input[type="file"],
+        textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.3s;
+        }
+
+        input[type="file"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 200px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .learning-section {
+            display: none;
+        }
+
+        .stats {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .term {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 5px solid #667eea;
+            border-radius: 8px;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .feedback-definition {
+            margin-top: 10px;
+            font-weight: normal;
+            font-style: italic;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            display: none;
+            text-align: center;
+        }
+
+        .results-section h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .final-stats {
+            background: #f5f5f5;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .final-stats .stat-item {
+            margin-bottom: 15px;
+        }
+
+        .final-stats .stat-label {
+            font-size: 1.1em;
+        }
+
+        .final-stats .stat-value {
+            font-size: 2.5em;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            color: white;
+            font-size: 3em;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #28a745;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Setup Section -->
+        <div id="setupSection" class="setup-section">
+            <h1>📚 Interrogate</h1>
+            
+            <div class="form-group">
+                <label for="csvFile">Upload CSV File:</label>
+                <input type="file" id="csvFile" accept=".csv" />
+                <small style="color: #999;">Format: term, definition</small>
+            </div>
+
+            <div class="form-group">
+                <label for="csvText">Or paste CSV content:</label>
+                <textarea id="csvText" placeholder="term,definition&#10;Example Term,Example Definition"></textarea>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="startWithFile()">Load from File</button>
+                <button class="btn-primary" onclick="startWithText()">Load from Text</button>
+            </div>
+        </div>
+
+        <!-- Learning Section -->
+        <div id="learningSection" class="learning-section">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">Correct</div>
+                    <div class="stat-value" id="correctCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Incorrect</div>
+                    <div class="stat-value" id="incorrectCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total</div>
+                    <div class="stat-value" id="totalCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value" id="scoreValue">0</div>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <div class="term" id="termDisplay"></div>
+                <input 
+                    type="text" 
+                    id="answerInput" 
+                    class="answer-input" 
+                    placeholder="Enter the definition..."
+                    onkeypress="if(event.key==='Enter' && !document.getElementById('answerInput').disabled) submitAnswer()"
+                />
+                <small id="kbdHint" style="color:#666; display:block; margin-bottom:10px;">Keyboard: Enter or <strong>Ctrl+Space</strong>/<strong>Ctrl+Enter</strong> to submit. Press <strong>Space</strong> to continue after feedback.</small>
+                <div id="feedback" class="feedback"></div>
+                <button id="submitBtn" class="btn-submit" onclick="submitAnswer()">Submit Answer</button>
+            </div>
+
+            <button class="btn-secondary" onclick="resetApp()" style="width: 100%;">← Back to Setup</button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results-section">
+            <h2>🎉 Session Complete!</h2>
+            
+            <div class="score-circle" id="scoreCircle">0</div>
+
+            <div class="final-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Total Terms</div>
+                    <div class="stat-value" id="finalTotal">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Correct Answers</div>
+                    <div class="stat-value" id="finalCorrect">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Incorrect Answers</div>
+                    <div class="stat-value" id="finalIncorrect">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total Prompts</div>
+                    <div class="stat-value" id="finalPrompts">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Success Rate</div>
+                    <div class="stat-value" id="finalRate">0%</div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="resetApp()" style="width: 100%; padding: 15px;">← Start Over</button>
+        </div>
+    </div>
+
+    <script>
+        // Render math-aware definitions using KaTeX for math-like strings
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function renderDefinition(targetEl, def) {
+            if (!targetEl) return;
+            if (typeof katex === 'undefined') {
+                targetEl.textContent = def;
+                return;
+            }
+
+            // If user provided explicit LaTeX between $...$, render mixed content
+            const dollarRegex = /\$(.+?)\$/g;
+            if (dollarRegex.test(def)) {
+                // Re-run regex to build output
+                let out = '';
+                let lastIndex = 0;
+                def.replace(dollarRegex, (match, tex, offset) => {
+                    const plain = def.slice(lastIndex, offset);
+                    out += escapeHtml(plain);
+                    try {
+                        out += katex.renderToString(tex, {throwOnError: false, displayMode: false});
+                    } catch (e) {
+                        out += escapeHtml(match);
+                    }
+                    lastIndex = offset + match.length;
+                    return match;
+                });
+                out += escapeHtml(def.slice(lastIndex));
+                targetEl.innerHTML = out;
+                return;
+            }
+
+            // Fallback: detect math-like content and convert common tokens to LaTeX
+            const mathPattern = /[=²^]|\b(hbar|nu|lambda|sqrt|sum|int|cdot|pi|J\(|J\b)\b/i;
+            const isMath = mathPattern.test(def);
+            if (!isMath) {
+                targetEl.textContent = def;
+                return;
+            }
+
+            let tex = def
+                .replace(/hbar/g, '\\hbar')
+                .replace(/\bnu\b/g, '\\nu')
+                .replace(/\blambda\b/g, '\\lambda')
+                .replace(/\bpi\b/g, '\\pi')
+                .replace(/\u00B2/g, '^{2}')
+                .replace(/\*/g, ' \\cdot ')
+                .replace(/\bJ\(/g, 'J\\left(')
+                .replace(/\)\s*\(/g, ')\\left(');
+
+            try {
+                targetEl.innerHTML = katex.renderToString(tex, {throwOnError: false, displayMode: false});
+            } catch (e) {
+                targetEl.textContent = def;
+            }
+        }
+        let terms = [];
+        let practiceTerms = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let totalPrompts = 0;
+        let currentTerm = null;
+
+        function parseCsv(csvText) {
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            const termIndex = headers.indexOf('term');
+            const defIndex = headers.indexOf('definition');
+
+            if (termIndex === -1 || defIndex === -1) {
+                throw new Error('CSV must have "term" and "definition" columns');
+            }
+
+            const parsed = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim()) {
+                    const parts = lines[i].split(',').map(p => p.trim());
+                    if (parts.length >= 2) {
+                        parsed.push({
+                            term: parts[termIndex],
+                            definition: parts[defIndex]
+                        });
+                    }
+                }
+            }
+            return parsed;
+        }
+
+        function startWithFile() {
+            const fileInput = document.getElementById('csvFile');
+            if (!fileInput.files.length) {
+                showError('Please select a file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    terms = parseCsv(e.target.result);
+                    if (terms.length === 0) {
+                        showError('No valid terms found in file');
+                        return;
+                    }
+                    startLearning();
+                } catch (error) {
+                    showError(error.message);
+                }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
+        function startWithText() {
+            const csvText = document.getElementById('csvText').value;
+            if (!csvText.trim()) {
+                showError('Please enter CSV content');
+                return;
+            }
+
+            try {
+                terms = parseCsv(csvText);
+                if (terms.length === 0) {
+                    showError('No valid terms found');
+                    return;
+                }
+                startLearning();
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function startLearning() {
+            practiceTerms = JSON.parse(JSON.stringify(terms));
+            correctCount = 0;
+            incorrectCount = 0;
+            totalPrompts = 0;
+            currentTerm = null;
+
+            document.getElementById('setupSection').style.display = 'none';
+            document.getElementById('learningSection').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+
+            updateStats();
+            showNextTerm();
+        }
+
+        function showNextTerm() {
+            if (practiceTerms.length === 0) {
+                showResults();
+                return;
+            }
+
+            practiceTerms.sort(() => Math.random() - 0.5);
+            currentTerm = practiceTerms[0];
+
+            document.getElementById('termDisplay').textContent = currentTerm.term;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').disabled = false;
+            document.getElementById('answerInput').focus();
+            document.getElementById('feedback').style.display = 'none';
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Answer';
+            submitBtn.onclick = submitAnswer;
+        }
+
+        function submitAnswer() {
+            const answer = document.getElementById('answerInput').value.trim();
+            if (!answer) {
+                showError('Please enter an answer');
+                return;
+            }
+
+            const isCorrect = answer.toLowerCase() === currentTerm.definition.toLowerCase();
+            const feedbackEl = document.getElementById('feedback');
+            const answerInput = document.getElementById('answerInput');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (isCorrect) {
+                totalPrompts++;
+                correctCount++;
+                feedbackEl.className = 'feedback correct';
+                feedbackEl.innerHTML = `✓ Correct: <div class="feedback-definition" id="feedbackDef"></div>`;
+                practiceTerms.splice(practiceTerms.indexOf(currentTerm), 1);
+                renderDefinition(document.getElementById('feedbackDef'), currentTerm.definition);
+                feedbackEl.style.display = 'block';
+                answerInput.disabled = true;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Continue →';
+                submitBtn.onclick = function() {
+                    updateStats();
+                    showNextTerm();
+                };
+                updateStats();
+            } else {
+                // Incorrect: show feedback and move to next term (this one goes to back of queue)
+                feedbackEl.className = 'feedback incorrect';
+                feedbackEl.innerHTML = `✗ Incorrect. Here's the answer: <div class="feedback-definition" id="feedbackDef"></div>`;
+                renderDefinition(document.getElementById('feedbackDef'), currentTerm.definition);
+                feedbackEl.style.display = 'block';
+                answerInput.disabled = true;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Skip to Next →';
+                // Add this term to the back of the queue to try again later
+                practiceTerms.push(currentTerm);
+                submitBtn.onclick = function() {
+                    showNextTerm();
+                };
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('totalCount').textContent = terms.length;
+
+            const efficiency = terms.length / (totalPrompts || 1);
+            const score = (correctCount / terms.length) * 100 * efficiency;
+            document.getElementById('scoreValue').textContent = Math.max(0, score.toFixed(1));
+        }
+
+        function showResults() {
+            document.getElementById('learningSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+
+            const efficiency = terms.length / totalPrompts;
+            const finalScore = (correctCount / terms.length) * 100 * efficiency;
+            const successRate = ((correctCount / terms.length) * 100).toFixed(1);
+
+            document.getElementById('scoreCircle').textContent = Math.max(0, finalScore.toFixed(1));
+            document.getElementById('finalTotal').textContent = terms.length;
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalIncorrect').textContent = incorrectCount;
+            document.getElementById('finalPrompts').textContent = totalPrompts;
+            document.getElementById('finalRate').textContent = successRate + '%';
+        }
+
+        function resetApp() {
+            document.getElementById('setupSection').style.display = 'flex';
+            document.getElementById('learningSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('csvFile').value = '';
+            document.getElementById('csvText').value = '';
+        }
+
+        function showError(message) {
+            alert('Error: ' + message);
+        }
+
+        // Keyboard accessibility: press Space to continue after feedback
+        window.addEventListener('keydown', function(e) {
+            const feedbackEl = document.getElementById('feedback');
+            const submitBtn = document.getElementById('submitBtn');
+            if (!feedbackEl || !submitBtn) return;
+
+            const feedbackVisible = feedbackEl.style.display && feedbackEl.style.display !== 'none';
+            const isContinue = submitBtn.textContent && submitBtn.textContent.includes('Continue');
+
+            if (feedbackVisible && isContinue && (e.code === 'Space' || e.key === ' ')) {
+                e.preventDefault();
+                submitBtn.click();
+            }
+        });
+
+        // Keyboard shortcuts: allow Ctrl+Space or Ctrl+Enter to submit while typing
+        window.addEventListener('keydown', function(e) {
+            const feedbackEl = document.getElementById('feedback');
+            const answerInput = document.getElementById('answerInput');
+            if (!answerInput) return;
+
+            const feedbackVisible = feedbackEl && feedbackEl.style.display && feedbackEl.style.display !== 'none';
+            // Only handle submit shortcuts when feedback is not visible (i.e., answering)
+            if (!feedbackVisible && !answerInput.disabled) {
+                const isCtrlSpace = e.ctrlKey && (e.code === 'Space' || e.key === ' ');
+                const isCtrlEnter = e.ctrlKey && (e.key === 'Enter' || e.code === 'Enter');
+                if (isCtrlSpace || isCtrlEnter) {
+                    e.preventDefault();
+                    submitAnswer();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
